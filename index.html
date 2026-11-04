@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Blender Run Status</title>
+<style>
+:root {
+  --bg: #f6f7f9; --card: #ffffff; --ink: #16181d; --muted: #5f6672; --line: #e3e6eb;
+  --working: #2563eb; --grading: #b76e00; --passed: #15803d; --failed: #c62828; --attention: #7c3aed; --idle: #cfd4dc;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #111317; --card: #1a1d23; --ink: #eceef2; --muted: #9aa2af; --line: #2c3038;
+    --working: #6d9eff; --grading: #e9a23b; --passed: #4cc97a; --failed: #f0736f; --attention: #b596ff; --idle: #3a3f49; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+main { max-width: 760px; margin: 0 auto; padding: 28px 16px 40px; }
+h1 { font-size: 22px; margin: 0 0 4px; letter-spacing: -0.01em; }
+#now { margin: 0 0 18px; color: var(--muted); font-size: 16px; }
+.tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 10px; }
+.tile { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+.tile b { display: block; font-size: 26px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.tile span { color: var(--muted); font-size: 13px; }
+.t-working b { color: var(--working); } .t-grading b { color: var(--grading); } .t-passed b { color: var(--passed); } .t-failed b { color: var(--failed); }
+.bar { display: flex; gap: 3px; height: 8px; margin: 12px 0 18px; }
+.bar i { flex: 1; border-radius: 3px; background: var(--idle); }
+.note { border: 1px solid var(--attention); color: var(--ink); background: var(--card); border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; }
+.note.stale { border-color: var(--grading); }
+.runs { background: var(--card); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.run { display: grid; grid-template-columns: 12px 1fr auto; gap: 2px 10px; padding: 12px 14px; border-top: 1px solid var(--line); align-items: baseline; }
+.run:first-child { border-top: 0; }
+.dot { width: 10px; height: 10px; border-radius: 50%; align-self: center; }
+.name { font-weight: 600; min-width: 0; }
+.level { font-weight: 400; color: var(--muted); font-size: 13px; margin-left: 6px; white-space: nowrap; }
+.state { font-weight: 600; text-align: right; white-space: nowrap; }
+.sub { grid-column: 2 / 4; color: var(--muted); font-size: 13.5px; }
+.turns { display: inline-flex; flex-wrap: wrap; gap: 4px; margin-right: 2px; }
+.turn { border: 1px solid var(--line); border-radius: 6px; padding: 0 6px; font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.pulse { animation: pulse 1.8s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: .35; } }
+@media (prefers-reduced-motion: reduce) { .pulse { animation: none; } }
+footer { color: var(--muted); font-size: 13px; margin-top: 14px; }
+footer p { margin: 0 0 6px; }
+#fresh { color: var(--ink); }
+@media (max-width: 480px) { .tile { padding: 8px 9px; } .tile b { font-size: 22px; } .tile span { font-size: 12px; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Blender sample runs</h1>
+  <p id="now">Loading the latest status&hellip;</p>
+  <div id="notes"></div>
+  <div class="tiles">
+    <div class="tile t-working"><b id="c-working">&ndash;</b><span>Working</span></div>
+    <div class="tile t-grading"><b id="c-grading">&ndash;</b><span>Being graded</span></div>
+    <div class="tile t-passed"><b id="c-passed">&ndash;</b><span>Passed</span></div>
+    <div class="tile t-failed"><b id="c-failed">&ndash;</b><span>Did not pass</span></div>
+  </div>
+  <div class="bar" id="bar" role="img" aria-label="Progress of each run"></div>
+  <div class="runs" id="runs"></div>
+  <footer>
+    <p id="fresh"></p>
+    <p id="saved"></p>
+    <p>Working: the agent is building the scene. Being graded: automatic checks and a judge score it. Passed: it scored at least <span id="bar-v">0.80</span> on every turn. A person still reviews each passing sample before it counts.</p>
+  </footer>
+</main>
+<script>
+const REPO = "dhigdec/blender-run-status";
+const API = "https://api.github.com/repos/" + REPO + "/contents/status.json?ref=data";
+const RAW = "https://raw.githubusercontent.com/" + REPO + "/data/status.json";
+const STATE = {
+  working: ["Working", "--working", true], grading: ["Being graded", "--grading", true], passed: ["Passed", "--passed", false],
+  failed: ["Did not pass", "--failed", false], check: ["Being re-checked", "--grading", true], review: ["Needs a person's check", "--attention", false],
+  rerun: ["Rerunning", "--working", true], problem: ["Stopped early", "--failed", false]
+};
+let data = null;
+const $ = (id) => document.getElementById(id);
+function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+function mins(a, b) {
+  const m = Math.max(0, Math.round((b - a) / 60));
+  return m < 60 ? m + " min" : Math.floor(m / 60) + " h " + (m % 60) + " min";
+}
+function ago(sec) { const m = Math.round(sec / 60); return m < 1 ? "just now" : m === 1 ? "1 min ago" : (m < 60 ? m + " min ago" : Math.floor(m / 60) + " h " + (m % 60) + " min ago"); }
+function draw() {
+  if (!data) return;
+  const nowS = Date.now() / 1000, c = data.counts;
+  $("now").textContent = data.now;
+  $("c-working").textContent = c.working + c.rerun;
+  $("c-grading").textContent = c.grading + c.check;
+  $("c-passed").textContent = c.passed;
+  $("c-failed").textContent = c.failed + c.review + c.problem;
+  $("bar-v").textContent = data.bar.toFixed(2);
+  const bar = $("bar"); bar.replaceChildren();
+  const list = $("runs"); list.replaceChildren();
+  for (const r of data.runs) {
+    const s = STATE[r.state] || STATE.working, color = "var(" + s[1] + ")";
+    const seg = el("i"); seg.style.background = color; seg.title = r.title + ": " + s[0]; bar.append(seg);
+    const row = el("div", "run");
+    const dot = el("span", "dot" + (s[2] ? " pulse" : "")); dot.style.background = color;
+    const name = el("div", "name", r.title); name.append(el("span", "level", r.level));
+    let label = s[0];
+    if (r.review === "pass") label = "Reviewed: passed"; else if (r.review === "reject") label = "Reviewed: rejected";
+    const st = el("div", "state", label); st.style.color = color;
+    const sub = el("div", "sub"), bits = [];
+    if (r.results.length && (r.turns > 1 || r.ended)) {
+      const t = el("span", "turns");
+      for (const x of r.results) {
+        const txt = (r.turns > 1 ? "Turn " + x.turn + ": " : "Score ") + (x.score == null ? "n/a" : x.score.toFixed(2)) + (x.pass ? " ✓" : " ✗");
+        t.append(el("span", "turn", txt));
+      }
+      sub.append(t, " ");
+    }
+    if (r.detail) bits.push(r.detail);
+    if (r.steps) bits.push(r.steps + " steps");
+    if (r.started) bits.push(mins(r.started, r.ended || nowS));
+    if (r.saved) bits.push("saved");
+    if (r.attempt && r.attempt > 21) bits.push("rerun");
+    sub.append(bits.join(" · "));
+    row.append(dot, name, st, sub);
+    list.append(row);
+  }
+  const age = nowS - Date.parse(data.updated) / 1000;
+  const when = new Date(data.updated).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  $("fresh").textContent = data.final ? "Final status at " + when + ". Tracking has finished."
+    : "Updated " + when + " (" + ago(age) + "). New data every 3 minutes, and this page refreshes itself.";
+  $("saved").textContent = "Saved to storage: " + data.saved + " of " + data.total + " runs. Runs are saved after their batch finishes grading.";
+  const notes = $("notes"); notes.replaceChildren();
+  for (const n of data.notes) notes.append(el("div", "note", n));
+  if (!data.final && age > 540) notes.append(el("div", "note stale", "No update for " + Math.round(age / 60) + " minutes, so what you see may be out of date. The runs themselves keep going."));
+}
+async function load() {
+  let got = null;
+  try {
+    const r = await fetch(API, { headers: { Accept: "application/vnd.github.raw+json" }, cache: "no-cache" });
+    if (r.ok) got = await r.json();
+  } catch (e) {}
+  if (!got) {
+    try {
+      const r = await fetch(RAW + "?t=" + Math.floor(Date.now() / 60000), { cache: "no-cache" });
+      if (r.ok) got = await r.json();
+    } catch (e) {}
+  }
+  if (got) { data = got; draw(); }
+  else if (!data) $("now").textContent = "Could not load the status right now. Trying again shortly.";
+}
+load();
+setInterval(load, 60000);
+setInterval(draw, 30000);
+</script>
+</body>
+</html>
