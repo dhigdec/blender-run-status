@@ -1,0 +1,290 @@
+{
+ "schema": 1,
+ "updated": "2026-11-05T03:24:41+00:00",
+ "every_seconds": 180,
+ "final": true,
+ "bar": 0.8,
+ "now": "Everything has finished. Passing samples are waiting for a person's review.",
+ "counts": {
+  "working": 0,
+  "grading": 0,
+  "passed": 11,
+  "failed": 1,
+  "check": 0,
+  "review": 0,
+  "rerun": 0,
+  "problem": 0
+ },
+ "total": 12,
+ "saved": 12,
+ "notes": [],
+ "runs": [
+  {
+   "id": "bpy-S1101",
+   "title": "Pop-up book harbour",
+   "level": "Medium",
+   "turns": 1,
+   "attempt": 21,
+   "state": "passed",
+   "detail": "",
+   "steps": 43,
+   "started": 1793833906.0674944,
+   "ended": 1793835492.0775976,
+   "results": [
+    {
+     "turn": 1,
+     "pass": true,
+     "score": 0.875
+    }
+   ],
+   "saved": true,
+   "review": null
+  },
+  {
+   "id": "bpy-S1102",
+   "title": "Yucatan cenote",
+   "level": "Medium",
+   "turns": 1,
+   "attempt": 21,
+   "state": "passed",
+   "detail": "",
+   "steps": 45,
+   "started": 1793833910.6919818,
+   "ended": 1793838183.593763,
+   "results": [
+    {
+     "turn": 1,
+     "pass": true,
+     "score": 0.875
+    }
+   ],
+   "saved": true,
+   "review": null
+  },
+  {
+   "id": "bpy-S1103",
+   "title": "Baroque pipe organ",
+   "level": "Hard",
+   "turns": 1,
+   "attempt": 21,
+   "state": "passed",
+   "detail": "",
+   "steps": 54,
+   "started": 1793833915.6867776,
+   "ended": 1793836542.4597933,
+   "results": [
+    {
+     "turn": 1,
+     "pass": true,
+     "score": 0.8125
+    }
+   ],
+   "saved": true,
+   "review": null
+  },
+  {
+   "id": "bpy-S1104",
+   "title": "Conveyor sushi counter",
+   "level": "Medium",
+   "turns": 2,
+   "attempt": 21,
+   "state": "passed",
+   "detail": "",
+   "steps": 68,
+   "started": 1793833920.8502626,
+   "ended": 1793837733.3861527,
+   "results": [
+    {
+     "turn": 1,
+     "pass": true,
+     "score": 0.9333
+    },
+    {
+     "turn": 2,
+     "pass": true,
+     "score": 0.9
+    }
+   ],
+   "saved": true,
+   "review": null
+  },
+  {
+   "id": "bpy-S1105",
+   "title": "Automatic car wash",
+   "level": "Hard",
+   "turns": 3,
+   "attempt": 21,
+   "state": "passed",
+   "detail": "",
+   "steps": 88,
+   "started": 1793833925.8965402,
+   "ended": 1793840853.4582613,
+   "results": [
+    {
+     "turn": 1,
+     "pass": true,
+     "score": 1.0
+    },
+    {
+     "turn": 2,
+     "pass": true,
+     "score": 0.8667
+    },
+    {
+     "turn": 3,
+     "pass": true,
+     "score": 0.8
+    }
+   ],
+   "saved": true,
+   "review": null
+  },
+  {
+   "id": "bpy-S1106",
+   "title": "Fusion machine first plasma",
+   "level": "Starliner",
+   "turns": 1,
+   "attempt": 21,
+   "state": "passed",
+   "detail": "",
+   "steps": 69,
+   "started": 1793834922.2705982,
+   "ended": 1793838889.3637886,
+   "results": [
+    {
+     "turn": 1,
+     "pass": true,
+     "score": 0.8125
+    }
+   ],
+   "saved": true,
+   "review": null
+  },
+  {
+   "id": "bpy-S1107",
+   "title": "Arctic seed vault",
+   "level": "Starliner",
+   "turns": 1,
+   "attempt": 21,
+   "state": "passed",
+   "detail": "",
+   "steps": 55,
+   "started": 1793834926.5739822,
+   "ended": 1793837367.0827136,
+   "results": [
+    {
+     "turn": 1,
+     "pass": true,
+     "score": 0.9688
+    }
+   ],
+   "saved": true,
+   "review": null
+  },
+  {
+   "id": "bpy-S1108",
+   "title": "Domino mosaic reveal",
+   "level": "Starliner 8K",
+   "turns": 1,
+   "attempt": 21,
+   "state": "passed",
+   "detail": "",
+   "steps": 81,
+   "started": 1793840604.7151086,
+   "ended": 1793847620.3966248,
+   "results": [
+    {
+     "turn": 1,
+     "pass": true,
+     "score": 1.0
+    }
+   ],
+   "saved": true,
+   "review": null
+  },
+  {
+   "id": "bpy-S1109",
+   "title": "Baroque theatre storm machine",
+   "level": "Starliner",
+   "turns": 1,
+   "attempt": 21,
+   "state": "passed",
+   "detail": "",
+   "steps": 76,
+   "started": 1793839991.7071714,
+   "ended": 1793844003.8854966,
+   "results": [
+    {
+     "turn": 1,
+     "pass": true,
+     "score": 0.8438
+    }
+   ],
+   "saved": true,
+   "review": null
+  },
+  {
+   "id": "bpy-S1110",
+   "title": "Naica crystal cave",
+   "level": "Starliner",
+   "turns": 1,
+   "attempt": 21,
+   "state": "failed",
+   "detail": "Lowest score 0.75, needs 0.80",
+   "steps": 73,
+   "started": 1793839996.3468819,
+   "ended": 1793844203.6049497,
+   "results": [
+    {
+     "turn": 1,
+     "pass": false,
+     "score": 0.75
+    }
+   ],
+   "saved": true,
+   "review": null
+  },
+  {
+   "id": "bpy-S1111",
+   "title": "Frozen banquet rewind",
+   "level": "Starliner",
+   "turns": 1,
+   "attempt": 21,
+   "state": "passed",
+   "detail": "",
+   "steps": 57,
+   "started": 1793840001.3025103,
+   "ended": 1793844060.5746505,
+   "results": [
+    {
+     "turn": 1,
+     "pass": true,
+     "score": 1.0
+    }
+   ],
+   "saved": true,
+   "review": null
+  },
+  {
+   "id": "bpy-S1112",
+   "title": "Rain inside a space colony",
+   "level": "Starliner 8K",
+   "turns": 1,
+   "attempt": 21,
+   "state": "passed",
+   "detail": "",
+   "steps": 87,
+   "started": 1793840609.0097067,
+   "ended": 1793848120.6302242,
+   "results": [
+    {
+     "turn": 1,
+     "pass": true,
+     "score": 0.875
+    }
+   ],
+   "saved": true,
+   "review": null
+  }
+ ]
+}
